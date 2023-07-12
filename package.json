@@ -1,0 +1,27 @@
+{
+  "homepage": "https://coderSuren.github.io/climateview",
+  "name": "weather_api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "engines": {
+    "node": "16.x"
+  },
+  "scripts": {
+    "test": "echo 'hello build'",
+    "start": "nodemon index.js",
+    "build": "echo 'build complete'"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "build": "^0.1.4",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.7",
+    "express": "^4.17.3"
+  },
+  "devDependencies": {
+    "gh-pages": "^5.0.0"
+  }
+}

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=0.9">
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- <link rel="icon"  href="/favicon_io/favicon.ico"> -->
+    <link type="image/png" sizes="16x16" rel="icon" href="/favicon_io/icons8-weather-16.png">
+
+    <!-- <link  href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.0/mdb.min.css"  rel="stylesheet"/> -->
+    <title>Weather Record</title>
+
+   
+  
+</head>
+<body>
+    <h1 id="heading-top">Real time Weather Forecasting  </h1>
+    
+    <h2 class="item3" > Name: <%= weatherData[0] %> </h2>
+    <form action="/" method="post" class="box" autocomplete="off">
+        
+        <h2 class="item"> Temperature : <%= weatherData[2] %> &#8451;</h2>
+        <label class="item" for="cityinput"><h2>Enter City name to view Weather</h2></label>
+        <div class="item">
+            <input type="text" id="cityinput" placeholder="Example: New York" name="city">
+            <button class="button-1" type="submit">Go</button>
+        </div>    
+    </form>
+    <button class="button-2" onclick="getLocation();"> Get weather for live location</button>
+    <span class="error"><br><%= errorMessage %></span>
+    <br>    
+    
+    <h1 id="heading">Weather Forecast</h1>
+    <div class="forecast">
+        <div class="carousel-container"> 
+        
+        <button id="firstButton"><i class="arrow left"></i><i class="arrow left"></i></button>
+        <button id="prevButton"><i class="arrow left"></i></button>
+        <div class="carousel">
+
+        <div class="card-container">
+            <% forecast.forEach(function(item) { %>
+                <div class="card">
+                    <h3 class="item2" style="color: rgb(84, 218, 245); background-color: #000000;"><%= item[0].slice(0,10)%> <br> <%= item[0].slice(10) %></h3>
+                    <img src="<%= item[1] %>" class="icon" alt="weather Icon"> 
+
+                    <h3 class="item2"> Weather : <%=  item[3]  %> </h3>
+                    <h3 class="item2"> Temperature : <%= item[2][0] %> &#8451;</h3> 
+                    <h3 class="item2"> Feels Like : <%= item[2][1] %> &#8451;</h3> 
+                    <h3 class="item2" > Humidity : <%= item[2][2] %> g/m<sup>3</sup></h3> 
+                    <h3 class="item2"> Wind Speed : <%= item[2][3] %> m/s</h3> 
+                    <h3 class="item2"> Wind Direction : <%= item[2][4] %>&deg; </h3>
+
+
+                </div>               
+            <% }); %>
+        </div>    
+    </div>
+    <button id="nextButton"><i class="arrow right"></i></button>
+    <button id="lastButton"><i class="arrow right"></i><i class="arrow right"></i></button>
+    
+    </div>
+    </div>  
+    <span class="error"><%= errorMessage %></span>
+   <br>
+    <script src="js/carousel.js"></script>
+    <!-- <script src="js/location.js"></script> -->
+    <script>
+        var latitude, longitude;
+
+        function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } else { 
+            x.innerHTML = "Geolocation is not supported by this browser.";
+        }
+        }
+
+        function showPosition(position) {
+        latitude = position.coords.latitude;
+        longitude = position.coords.longitude;
+        fetchWeather()
+        }
+
+        
+        function fetchWeather() {
+            // console.log(
+            //     "STARTING FETCH WEATHER"
+            // );
+            fetch(`/geolocation/${latitude}/${longitude}`,{
+                method: "POST",           
+            })
+            .then((response) => response.json())
+            .then(response=>{
+                // take weather data from response and display it in the box using DOM
+
+                // console.log(response);
+                document.querySelector(".box").style.display =response.displayProperty;
+                // document.querySelector(".forecast").style.display =response.displayProperty;
+                document.querySelector(".error").innerHTML = response.errorMessage;
+
+                document.getElementById("box-1").innerHTML = 
+                    "<h2 class='item'>City : "+response.weatherData[0]+ "<br><pre style='display:contents'>      (current location) </pre></h2>\
+                    <h2 class='item'>Weather : "+response.weatherData[1]+ "<img src='<%= weatherImg %>' class='icon' alt='weather Icon'> </h2>\
+                    <h2 class='item'> Temperature : "+response.weatherData[2]+ "&#8451;</h2>\
+                    <h2 class='item'> Feels Like : "+response.weatherData[3]+ " &#8451;</h2>\
+                    <h2 class='item'> Humidity : "+response.weatherData[4]+ " g/m<sup>3</sup></h2>\
+                    <h2 class='item'> Wind Speed : "+response.weatherData[5]+ " m/s</h2>\
+                    <h2 class='item'> Wind Direction :"+response.weatherData[6]+ "&deg; </h2>";
+                
+                // take forecast data from response and display it in the card-container using DOM
+                // use javascript to create cards and append it to the card-container
+                document.getElementsByClassName('card-container')[0].innerHTML = "";
+                var forecast = response.forecast;
+                // console.log(forecast);
+                for (i = 0; i < forecast.length; i++) {
+                    temp = document.createElement('div');
+                    temp.className = 'card';
+                    temp.innerHTML = "<h3 class='item2' style='color: white; background-color: #A683E3;'>\
+                    " + forecast[i][0].slice(0,10)+"<br>"+ forecast[i][0].slice(10)+"</h3>\
+                    <img src='"+forecast[i][1]+"' class='icon' alt='weather Icon'>\
+                    <h3 class='item2'> Weather : " + forecast[i][3] +"  </h3>\
+                    <h3 class='item2'> Temperature : "+forecast[i][2][0]+" &#8451;</h3>\
+                    <h3 class='item2'> Feels Like : "+forecast[i][2][1]+" &#8451;</h3>\
+                    <h3 class='item2'> Humidity : "+forecast[i][2][2]+" g/m<sup>3</sup></h3>\
+                    <h3 class='item2'> Wind Speed : "+forecast[i][2][3]+" m/s</h3>\
+                    <h3 class='item2'> Wind Direction : "+forecast[i][2][4]+"&deg; </h3>";
+
+                    document.getElementsByClassName('card-container')[0].appendChild(temp);
+                    document.getElementById("firstButton").click()
+                }
+                
+            })
+            scrollToSection('heading');
+        }
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+        // getLocation();
+    </script>
+    
+</body>
+</html>
